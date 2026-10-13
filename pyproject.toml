@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gms"
+version = "0.0.1"
+description = "Minimal Viable Graph Memory: when is graph-structured memory worth the cost?"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

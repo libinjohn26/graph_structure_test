@@ -1,0 +1,88 @@
+# Default experiment configuration.
+# This is a stub for now: it documents the design so later phases (architecture
+# implementations, task generators, eval harness) all read from one place rather
+# than hardcoding choices. Values will be filled in / overridden as each piece lands.
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  outputs: outputs
+
+datasets:
+  locomo:
+    source: https://raw.githubusercontent.com/snap-research/locomo/main/data/locomo10.json
+    local_path: data/raw/locomo/locomo10.json
+
+# Architecture ladder — see design doc section 2.1.
+architectures:
+  - id: L0
+    name: flat_summary
+    description: Rolling summary / recency window, no structure
+  - id: L1
+    name: vector
+    description: Chunk + embed each turn, top-k cosine retrieval
+  - id: L2
+    name: kv_entity
+    description: LLM-extracted entity -> attribute list, no edges
+  - id: L3
+    name: graph_cheap
+    description: LLM-extracted triples, personalized PageRank retrieval (HippoRAG2-style)
+  - id: L3p
+    name: graph_community
+    description: Triples + community summaries (MS-GraphRAG-style)
+  - id: hybrid
+    name: vector_seeded_graph
+    description: Vector retrieval seeds entities, then graph traversal
+
+# Task categories — see design doc section 2.2.
+task_categories:
+  - id: single_fact_recall
+    breadth: low
+    depth: 1
+    churn: none
+  - id: multi_entity_tracking
+    breadth: moderate
+    depth: [1, 2]
+    churn: low
+  - id: multi_hop_relational_qa
+    breadth: high
+    depth: [3, 4, 5]
+    churn: none
+  - id: contradiction_resolution
+    breadth: moderate
+    depth: [1, 2]
+    churn: high
+  - id: long_horizon_consistency
+    breadth: high
+    depth: variable
+    churn: moderate
+
+models:
+  backbone_small: Qwen2.5-7B-Instruct
+  backbone_mid: Qwen2.5-14B-Instruct
+  backbone_large: Llama-3.1-70B-Instruct
+  extraction: Qwen2.5-14B-Instruct   # fixed across L2/L3/L3' to avoid extraction-quality confound
+  embedding: bge-large-en-v1.5
+  judge_primary: Llama-3.1-70B-Instruct
+  judge_crosscheck: gpt-4o-mini
+
+# LLM serving. The endpoint is read from the environment, not committed here,
+# so a lab-specific host never becomes a default someone else inherits:
+#   GMS_LLM_BASE_URL   e.g. http://host:8000
+#   GMS_LLM_MODEL      an id from the server's /v1/models
+#   GMS_LLM_API_KEY    only if vLLM was started with --api-key
+# Verify with `python scripts/check_llm.py` before a long run.
+llm:
+  backend: vllm            # OpenAI-compatible API
+  temperature: 0.0         # extraction must be reproducible across runs
+  seed: 0
+  max_tokens: 512
+  max_retries: 3
+
+scale_points:
+  - 10   # turns (or equivalent entity count)
+  - 50
+  - 150
+  - 400
+
+seeds: [0, 1, 2]

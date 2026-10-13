@@ -1,0 +1,19 @@
+# Phase 0: scaffold + data loading.
+pyyaml>=6.0
+tqdm>=4.66
+pytest>=8.0
+
+# Phase 1: L0/L1 memory architectures.
+# sentence-transformers pulls in torch + transformers + huggingface-hub;
+# BAAI/bge-large-en-v1.5 (~1.3GB) downloads on first use of BGEEmbedder.
+numpy>=1.26
+sentence-transformers>=3.0
+
+# L2 onwards: talking to the vLLM server (OpenAI-compatible API).
+httpx>=0.27
+
+# L3: entity graph + personalized PageRank.
+networkx>=3.0
+
+# HotpotQA ships as parquet on the HuggingFace mirror.
+pyarrow>=15.0

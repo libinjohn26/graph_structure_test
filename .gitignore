@@ -1,0 +1,26 @@
+# Secrets — .env holds a real API key. The committed template is .env.example.
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Datasets are not redistributed here: LoCoMo and HotpotQA carry their own
+# licences. scripts/download_*.sh fetch them from source.
+data/raw/
+
+# Run artifacts. data/processed also holds the LLM and embedding caches, which
+# are tens of thousands of files and well over a gigabyte.
+data/processed/
+outputs/
+
+# Working notes and manuscript material, kept out of the public repo.
+CLAUDE.md
+docs/ARCHITECTURES.md
+paper/
+
+.DS_Store
